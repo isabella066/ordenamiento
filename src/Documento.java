@@ -1,10 +1,7 @@
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 
 public class Documento {
@@ -14,12 +11,24 @@ public class Documento {
     private String nombre;
     private String documento;
 
+
+    public String getCriterio(int criterio) {
+        switch (criterio) {
+            case 0: return this.apellido1; 
+            case 1: return this.apellido2; 
+            case 2: return this.nombre;     
+            case 3: return this.documento;   
+            default: throw new IllegalArgumentException("Criterio no válido");
+        }
+    }
+
     public Documento(String apellido1, String apellido2, String nombre, String documento) {
         this.apellido1 = apellido1;
         this.apellido2 = apellido2;
         this.nombre = nombre;
         this.documento = documento;
     }
+    
 
     public String getNombre() {
         return nombre;
@@ -43,6 +52,7 @@ public class Documento {
 
     // ********** Atributos y Metodos estaticos **********
     // Almacena la lista de documentos
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static List<Documento> documentos = new ArrayList();
     public static String[] encabezados;
 
@@ -67,6 +77,8 @@ public class Documento {
             }
         }
     }
+  
+
 
     // Metodo para mostrar los datos en una tabla
     public static void mostrarDatos(JTable tbl) {
@@ -125,12 +137,10 @@ public class Documento {
     public static void ordenarBurbuja(int criterio) {
         for (int i = 0; i < documentos.size() - 1; i++) {
 
-            // System.out.println("Vamos en " + i);
             for (int j = i + 1; j < documentos.size(); j++) {
                 if (esMayor(documentos.get(i), documentos.get(j), criterio)) {
                     intercambiar(i, j);
-                    // System.out.println("Intercambio " + documentos[i].getNombreCompleto() + " por
-                    // " + documentos[j].getNombreCompleto());
+
                 }
             }
         }
@@ -168,41 +178,17 @@ public class Documento {
             documentos.set(j + 1, clave);
         }
     }
-    public static List<Documento> buscarDocumentos(String criterio) {
-        List<Documento> resultados = new ArrayList<>();
-        for (Documento d : documentos) {
-            if (d.nombre.equalsIgnoreCase(criterio) ||
-                d.apellido1.equalsIgnoreCase(criterio) ||
-                d.apellido2.equalsIgnoreCase(criterio) ||
-                d.documento.equalsIgnoreCase(criterio)) {
-                resultados.add(d); // Agregar a la lista de resultados
-                
-            }
-        }
-        
-        if (!resultados.isEmpty()) {
-            StringBuilder mensaje = new StringBuilder("Datos obtenidos:\n");
-            for (Documento d : resultados) {
-                    mensaje.append("Nombre: ").append(d.getNombre()).append("\n")
-                           .append("Apellido 1: ").append(d.getApellido1()).append("\n")
-                           .append("Apellido 2: ").append(d.getApellido2()).append("\n")
-                           .append("Documento: ").append(d.getDocumento()).append("\n\n");
-            }
-            
-    JTextArea textArea = new JTextArea(20, 40);
-    textArea.setText(mensaje.toString()); 
-    textArea.setEditable(false); 
-    
-    
-    JScrollPane scrollPane = new JScrollPane(textArea);
 
-            JOptionPane.showMessageDialog(null,scrollPane, mensaje.toString(), JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(null, "No se encontraron documentos.");
+    public static ArbolBinario getArbolBinario(int criterio) {
+        ArbolBinario ab = new ArbolBinario();
+        ab.setCriterio(criterio);
+        for (Documento d : documentos) {
+            ab.agregarNodo(new Nodo(d));
         }
-    
-        return resultados; 
+        return ab;
+
     }
-    }
+
+}
 
 

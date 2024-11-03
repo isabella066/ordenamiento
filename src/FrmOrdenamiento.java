@@ -22,14 +22,17 @@ public class FrmOrdenamiento extends JFrame {
     private JButton btnOrdenarRapido;
     private JButton btnOrdenarInsercion;
     private JToolBar tbOrdenamiento;
+    @SuppressWarnings("rawtypes")
     private JComboBox cmbCriterio;
     private JTextField txtTiempo;
     private JButton btnBuscar;
     private JTextField txtBuscar;
+    @SuppressWarnings("rawtypes")
+    private JComboBox cmbArbol;
 
     private JTable tblDocumentos;
-     private DefaultTableModel dtm;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public FrmOrdenamiento() {
 
         tbOrdenamiento = new JToolBar();
@@ -38,13 +41,14 @@ public class FrmOrdenamiento extends JFrame {
         btnOrdenarRapido = new JButton();
         cmbCriterio = new JComboBox();
         txtTiempo = new JTextField();
+        cmbArbol = new JComboBox();
 
         btnBuscar = new JButton();
         txtBuscar = new JTextField();
 
         tblDocumentos = new JTable();
 
-        setSize(600, 400);
+        setSize(900, 400);
         setTitle("Ordenamiento Documentos");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -79,6 +83,10 @@ public class FrmOrdenamiento extends JFrame {
                 new String[] { "Nombre Completo, Tipo de Documento", "Tipo de Documento, Nombre Completo" }));
         tbOrdenamiento.add(cmbCriterio);
         tbOrdenamiento.add(txtTiempo);
+
+        cmbArbol.setModel(new DefaultComboBoxModel(
+                new String[] { "Primer apellido", "Segundo apellido", "Nombre", "Documento" }));
+        tbOrdenamiento.add(cmbArbol);
 
         btnBuscar.setIcon(new ImageIcon(getClass().getResource("/iconos/Buscar.png")));
         btnBuscar.setToolTipText("Buscar");
@@ -130,8 +138,43 @@ public class FrmOrdenamiento extends JFrame {
     }
 
     private void btnBuscar(ActionEvent evt) {
-        String criterio = txtBuscar.getText().trim();
-        List<Documento> resultados = Documento.buscarDocumentos(criterio);
+          
+        if (cmbArbol.getSelectedIndex() >= 0) {
+            int criterio = cmbArbol.getSelectedIndex();
+    
+            ArbolBinario ab = Documento.getArbolBinario(criterio);
+    
+            String valorBuscado = txtBuscar.getText().trim().toLowerCase();
+            if (valorBuscado.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese un valor para buscar.");
+                return;
+            }
+            
+
+           List<Nodo> resultado = ab.buscarTodos(valorBuscado);
+    
+
+            if (!resultado.isEmpty()) {
+                mostrarDocumentoEnTabla(resultado);
+            } else {
+                JOptionPane.showMessageDialog(this, "Datos no encontrado.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione un criterio de búsqueda.");
+        }
     }
 
-}
+    private void mostrarDocumentoEnTabla(List<Nodo> documentos) {
+        DefaultTableModel model = (DefaultTableModel) tblDocumentos.getModel();
+        model.setRowCount(0); 
+    
+        for (Nodo nodo : documentos) {
+            model.addRow(new Object[] {
+                nodo.getDocumento().getApellido1(),
+                nodo.getDocumento().getApellido2(),
+                nodo.getDocumento().getNombre(),
+                nodo.getDocumento().getDocumento()
+            });
+        }
+    }
+}           
